@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/jmengit/bluebubbles-mcp/internal/config"
+	"github.com/jmengit/bluebubbles-mcp/internal/mcpserver"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -34,9 +35,7 @@ func main() {
 	}
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
-	server := mcp.NewServer(&mcp.Implementation{Name: "bluebubbles-mcp", Version: "0.1.0"}, nil)
-	readOnly, destructive := true, false
-	mcp.AddTool(server, &mcp.Tool{Name: "ping", Description: "Return gateway availability and configured capability mode.", Annotations: &mcp.ToolAnnotations{ReadOnlyHint: readOnly, DestructiveHint: &destructive, IdempotentHint: true, OpenWorldHint: &readOnly}}, pingTool(cfg))
+	server := mcpserver.New(cfg).MCP()
 	mcpHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return server }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true, MaxRequestBodyBytes: 4 << 20})
 	mux := http.NewServeMux()
 	mux.Handle("/mcp", bearer(cfg.MCPAuthToken, mcpHandler))
@@ -57,13 +56,6 @@ func main() {
 	if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		logger.Error("server stopped", "error", err)
 		os.Exit(1)
-	}
-}
-
-func pingTool(cfg Config) mcp.ToolHandlerFor[struct{}, any] {
-	return func(ctx context.Context, req *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
-		b, _ := json.Marshal(map[string]string{"status": "ok", "mode": cfg.Mode})
-		return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(b)}}}, nil, nil
 	}
 }
 
