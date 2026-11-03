@@ -9,6 +9,8 @@ import (
 
 func TestLoadConfigDefaultsToReadonly(t *testing.T) {
 	t.Setenv("BLUEBUBBLES_MODE", "")
+	t.Setenv("BLUEBUBBLES_URL", "https://bluebubbles.example")
+	t.Setenv("BLUEBUBBLES_PASSWORD", "password")
 	t.Setenv("MCP_AUTH_TOKEN", "token")
 	t.Setenv("MCP_LISTEN_ADDR", "")
 	cfg, err := loadConfig()

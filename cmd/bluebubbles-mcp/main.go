@@ -5,7 +5,6 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -13,28 +12,14 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jmengit/bluebubbles-mcp/internal/config"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-type Config struct{ Mode, ListenAddr, MCPAuthToken string }
+type Config = config.Config
 
-func loadConfig() (Config, error) {
-	mode := os.Getenv("BLUEBUBBLES_MODE")
-	if mode == "" {
-		mode = "readonly"
-	}
-	if mode != "readonly" && mode != "interactive" {
-		return Config{}, fmt.Errorf("BLUEBUBBLES_MODE must be readonly or interactive")
-	}
-	token := os.Getenv("MCP_AUTH_TOKEN")
-	if token == "" {
-		return Config{}, errors.New("MCP_AUTH_TOKEN is required")
-	}
-	addr := os.Getenv("MCP_LISTEN_ADDR")
-	if addr == "" {
-		addr = "127.0.0.1:8080"
-	}
-	return Config{Mode: mode, ListenAddr: addr, MCPAuthToken: token}, nil
+func loadConfig() (config.Config, error) {
+	return config.Load()
 }
 
 type Health struct {
