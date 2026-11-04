@@ -136,7 +136,7 @@ func headerFile(path, rawJSON string) (map[string]string, error) {
 	}
 	for k, v := range h {
 		lk := strings.ToLower(k)
-		if k == "" || strings.ContainsAny(k, "\r\n") || strings.ContainsAny(v, "\r\n") || lk == "host" || lk == "content-length" || lk == "transfer-encoding" || lk == "connection" || lk == "proxy-connection" || lk == "keep-alive" || lk == "upgrade" {
+		if k == "" || strings.ContainsAny(k, "\r\n") || strings.ContainsAny(v, "\r\n") || lk == "host" || lk == "authorization" || lk == "proxy-authorization" || lk == "cookie" || lk == "forwarded" || strings.HasPrefix(lk, "x-forwarded-") || lk == "content-length" || lk == "transfer-encoding" || lk == "connection" || lk == "proxy-connection" || lk == "keep-alive" || lk == "upgrade" {
 			return nil, fmt.Errorf("invalid upstream header %q", k)
 		}
 	}

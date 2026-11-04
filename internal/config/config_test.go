@@ -37,12 +37,10 @@ func TestLoadRejectsUserInfoAndBadHeader(t *testing.T) {
 	if _, err := Load(); err == nil {
 		t.Fatal("expected URL query error")
 	}
-	t.Setenv("BLUEBUBBLES_URL", "https://bluebubbles.example")
-	d := t.TempDir()
-	p := filepath.Join(d, "h")
-	_ = os.WriteFile(p, []byte(`{"Host":"evil"}`), 0600)
-	t.Setenv("BLUEBUBBLES_HEADERS_FILE", p)
-	if _, err := Load(); err == nil {
-		t.Fatal("expected header error")
+	for _, bad := range []string{"Host", "Authorization", "Proxy-Authorization", "Cookie", "Forwarded", "X-Forwarded-Host"} {
+		t.Setenv("BLUEBUBBLES_HEADERS_JSON", `{"`+bad+`":"evil"}`)
+		if _, err := Load(); err == nil {
+			t.Fatalf("expected bad header rejection for %s", bad)
+		}
 	}
 }
