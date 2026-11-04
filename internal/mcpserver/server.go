@@ -33,7 +33,8 @@ func (s *Server) MCP() *mcp.Server {
 }
 func (s *Server) Handler() http.Handler {
 	server := s.MCP()
-	return mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return server }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true, MaxRequestBodyBytes: s.cfg.MaxRequestBytes, PropagateRequestCancellation: true})
+	handler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return server }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true, MaxRequestBodyBytes: s.cfg.MaxRequestBytes, PropagateRequestCancellation: true})
+	return handler
 }
 
 func (s *Server) ping(ctx context.Context, req *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {

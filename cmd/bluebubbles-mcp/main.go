@@ -36,7 +36,7 @@ func main() {
 	slog.SetDefault(logger)
 	mcpHandler := mcpserver.New(cfg).Handler()
 	mux := http.NewServeMux()
-	mux.Handle("/mcp", bearer(cfg.MCPAuthToken, mcpHandler))
+	mux.Handle("/mcp", bearer(cfg, mcpHandler))
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(Health{Status: "ok"})
@@ -57,9 +57,21 @@ func main() {
 	}
 }
 
-func bearer(expected string, next http.Handler) http.Handler {
+func bearer(cfg config.Config, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		got, want := r.Header.Get("Authorization"), "Bearer "+expected
+		if host := r.Host; len(cfg.AllowedHosts) > 0 {
+			if _, ok := cfg.AllowedHosts[host]; !ok {
+				http.Error(w, "forbidden", http.StatusForbidden)
+				return
+			}
+		}
+		if origin := r.Header.Get("Origin"); origin != "" && len(cfg.AllowedOrigins) > 0 {
+			if _, ok := cfg.AllowedOrigins[origin]; !ok {
+				http.Error(w, "forbidden", http.StatusForbidden)
+				return
+			}
+		}
+		got, want := r.Header.Get("Authorization"), "Bearer "+cfg.MCPAuthToken
 		if len(got) != len(want) || subtle.ConstantTimeCompare([]byte(got), []byte(want)) != 1 {
 			w.Header().Set("WWW-Authenticate", "Bearer")
 			http.Error(w, "unauthorized", http.StatusUnauthorized)

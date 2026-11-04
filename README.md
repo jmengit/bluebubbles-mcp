@@ -12,8 +12,27 @@ This repository is under active development. The initial service shell supports 
 - `BLUEBUBBLES_URL`: upstream BlueBubbles base URL.
 - `BLUEBUBBLES_PASSWORD_FILE`: preferred upstream password source.
 - `BLUEBUBBLES_HEADERS_FILE`: optional JSON object of static upstream headers.
+- `BLUEBUBBLES_HEADERS_JSON`: optional JSON object of static upstream headers; useful when the deployment supplies configuration through an environment file.
 - `MCP_AUTH_TOKEN_FILE`: preferred credential for the gateway's Bearer authentication.
+- `MCP_AUTH_TOKEN`: direct gateway Bearer credential; supported for `.env` deployments.
+- `MCP_ALLOWED_HOSTS`: optional comma-separated exact Host values accepted for `/mcp`.
+- `MCP_ALLOWED_ORIGINS`: optional comma-separated exact `scheme://host[:port]` origins accepted for `/mcp`.
 - `MCP_LISTEN_ADDR`: listen address; defaults to loopback.
+
+Example `.env` configuration for a LAN or WAN/reverse-proxy deployment:
+
+```dotenv
+BLUEBUBBLES_MODE=readonly
+BLUEBUBBLES_URL=http://bluebubbles.lan:1234
+BLUEBUBBLES_PASSWORD=replace-me
+BLUEBUBBLES_HEADERS_JSON={"CF-Access-Client-Id":"replace-me","CF-Access-Client-Secret":"replace-me"}
+MCP_AUTH_TOKEN=replace-me
+MCP_LISTEN_ADDR=0.0.0.0:8080
+MCP_ALLOWED_HOSTS=mcp.example.test
+MCP_ALLOWED_ORIGINS=https://mcp.example.test
+```
+
+For LAN access, set `BLUEBUBBLES_URL` to the reachable LAN URL and bind `MCP_LISTEN_ADDR` to the container interface. For a WAN address behind Cloudflare Access or another application proxy, place the proxy's static upstream headers in `BLUEBUBBLES_HEADERS_JSON`; these are sent only to BlueBubbles and are never copied from inbound MCP requests. Use exact Host and Origin allowlists when the endpoint is exposed beyond a trusted LAN.
 
 Secrets should be supplied by the deployment platform or secret files. Do not place real credentials in this repository or issue them as MCP arguments.
 
