@@ -14,7 +14,6 @@ import (
 
 	"github.com/jmengit/bluebubbles-mcp/internal/config"
 	"github.com/jmengit/bluebubbles-mcp/internal/mcpserver"
-	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 type Config = config.Config
@@ -35,8 +34,7 @@ func main() {
 	}
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
-	server := mcpserver.New(cfg).MCP()
-	mcpHandler := mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return server }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true, MaxRequestBodyBytes: 4 << 20})
+	mcpHandler := mcpserver.New(cfg).Handler()
 	mux := http.NewServeMux()
 	mux.Handle("/mcp", bearer(cfg.MCPAuthToken, mcpHandler))
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {

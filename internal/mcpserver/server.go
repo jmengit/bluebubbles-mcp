@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/jmengit/bluebubbles-mcp/internal/config"
@@ -30,6 +31,11 @@ func (s *Server) MCP() *mcp.Server {
 	}
 	return out
 }
+func (s *Server) Handler() http.Handler {
+	server := s.MCP()
+	return mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return server }, &mcp.StreamableHTTPOptions{Stateless: true, JSONResponse: true, MaxRequestBodyBytes: s.cfg.MaxRequestBytes, PropagateRequestCancellation: true})
+}
+
 func (s *Server) ping(ctx context.Context, req *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, any, error) {
 	b, _ := json.Marshal(map[string]string{"status": "ok", "mode": s.cfg.Mode})
 	return textResult(string(b)), nil, nil
