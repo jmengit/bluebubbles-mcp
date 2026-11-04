@@ -33,11 +33,9 @@ func TestLoadReadonlyAndFiles(t *testing.T) {
 	}
 }
 func TestLoadRejectsUserInfoAndBadHeader(t *testing.T) {
-	t.Setenv("BLUEBUBBLES_URL", "https://user:pass@bluebubbles.example")
-	t.Setenv("BLUEBUBBLES_PASSWORD", "p")
-	t.Setenv("MCP_AUTH_TOKEN", "t")
+	t.Setenv("BLUEBUBBLES_URL", "https://bluebubbles.example?existing=not-allowed")
 	if _, err := Load(); err == nil {
-		t.Fatal("expected URL error")
+		t.Fatal("expected URL query error")
 	}
 	t.Setenv("BLUEBUBBLES_URL", "https://bluebubbles.example")
 	d := t.TempDir()

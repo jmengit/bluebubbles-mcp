@@ -38,8 +38,8 @@ func Load() (Config, error) {
 		return Config{}, errors.New("BLUEBUBBLES_URL is required")
 	}
 	u, err := url.Parse(rawURL)
-	if err != nil || u.Scheme == "" || u.Host == "" || u.User != nil {
-		return Config{}, errors.New("BLUEBUBBLES_URL must be an absolute URL without userinfo")
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Opaque != "" {
+		return Config{}, errors.New("BLUEBUBBLES_URL must be an absolute HTTP(S) URL without userinfo, query, or fragment")
 	}
 	password, err := secret("BLUEBUBBLES_PASSWORD_FILE", "BLUEBUBBLES_PASSWORD")
 	if err != nil {
