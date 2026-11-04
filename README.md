@@ -32,7 +32,7 @@ MCP_ALLOWED_HOSTS=mcp.example.test
 MCP_ALLOWED_ORIGINS=https://mcp.example.test
 ```
 
-For LAN access, set `BLUEBUBBLES_URL` to the reachable LAN URL and bind `MCP_LISTEN_ADDR` to the container interface. For a WAN address behind Cloudflare Access or another application proxy, place the proxy's static upstream headers in `BLUEBUBBLES_HEADERS_JSON`; these are sent only to BlueBubbles and are never copied from inbound MCP requests. Use exact Host and Origin allowlists when the endpoint is exposed beyond a trusted LAN.
+The `.env` file may provide `BLUEBUBBLES_URL` as either an HTTP or HTTPS LAN/WAN URL. The gateway does not require the URL to be public; it simply needs to be reachable from the container. `BLUEBUBBLES_HEADERS_JSON` is parsed once at startup and supports fixed headers such as Cloudflare Access service-token headers. Never pass arbitrary inbound MCP headers through to the upstream.
 
 Secrets should be supplied by the deployment platform or secret files. Do not place real credentials in this repository or issue them as MCP arguments.
 
