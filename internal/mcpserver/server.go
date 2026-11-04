@@ -73,7 +73,7 @@ func bounded(limit, offset int) (int, int, error) {
 	return limit, offset, nil
 }
 func (s *Server) addReadTools(out *mcp.Server) {
-	ro, destructive, open := true, false, true
+	ro, destructive, open := true, false, false
 	mcp.AddTool(out, &mcp.Tool{Name: "list_chats", Description: "List BlueBubbles chats.", Annotations: &mcp.ToolAnnotations{ReadOnlyHint: ro, DestructiveHint: &destructive, IdempotentHint: true, OpenWorldHint: &open}}, func(ctx context.Context, req *mcp.CallToolRequest, in listChatsInput) (*mcp.CallToolResult, any, error) {
 		limit, offset, err := bounded(in.Limit, in.Offset)
 		if err != nil {
